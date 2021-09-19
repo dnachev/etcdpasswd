@@ -19,6 +19,7 @@ var (
 	flgConfigPath = flag.String("config", "/etc/etcdpasswd/config.yml", "configuration file path")
 	flgSyncer     = flag.String("syncer", "os", "user sync driver [os,dummy]")
 	flgVersion    = flag.Bool("version", false, "version")
+	flgOnce       = flag.Bool("once", false, "synchronize the users and exit")
 )
 
 func loadConfig(p string) (*etcdutil.Config, error) {
@@ -69,7 +70,19 @@ func main() {
 
 	agent := agent.Agent{Client: etcd, Syncer: sc}
 
+	if *flgOnce {
+		rev, err := agent.SynchronizeOnce(context.Background())
+		if err != nil {
+			log.ErrorExit(err)
+			os.Exit(1)
+		} else {
+			fmt.Fprintf(os.Stderr, "Synchronized user database for rev %\n", rev);
+			os.Exit(0)
+		}
+	}
+
 	updateCh := make(chan struct{}, 1)
+
 	well.Go(func(ctx context.Context) error {
 		return agent.StartWatching(ctx, updateCh)
 	})

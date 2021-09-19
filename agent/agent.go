@@ -51,6 +51,24 @@ func (a *Agent) StartWatching(ctx context.Context, updateCh chan<- struct{}) err
 	return nil
 }
 
+func (a *Agent) SynchronizeOnce(ctx context.Context) (int64, error) {
+		// obtain the current revision to avoid missing events
+	// it's OK that key "/" does not exists
+	resp, err := a.Get(ctx, "/")
+	if err != nil {
+		return -1, err
+	}
+
+	rev := resp.Header.Revision
+
+	db, err := etcdpasswd.GetDatabase(ctx, a.Client, rev)
+	if err != nil {
+		return -1, err
+	}
+
+	return rev, synchronize(ctx, db, a.Syncer)
+}
+
 // StartUpdater is a goroutine to receive notification from watcher.
 func (a *Agent) StartUpdater(ctx context.Context, updateCh <-chan struct{}) error {
 	for {
@@ -73,6 +91,7 @@ func (a *Agent) StartUpdater(ctx context.Context, updateCh <-chan struct{}) erro
 			log.Info("finish sync", map[string]interface{}{
 				"rev": rev,
 			})
+			
 		case <-ctx.Done():
 			return nil
 		}
