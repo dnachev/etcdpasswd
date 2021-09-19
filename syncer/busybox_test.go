@@ -110,3 +110,64 @@ func TestAddUser(t *testing.T) {
 		t.Errorf(`Expected the correct commands to be executed, but got %#v`, **actualCmds)
 	}
 }
+
+func TestAddUserExistingUser(t *testing.T) {
+	ctx := context.Background()
+
+	runner, _ := MockedRunner()
+
+	subject := BusyboxSyncer{
+		Run: runner,
+	}
+
+	err := subject.AddUser(ctx, &etcdpasswd.User{
+		Name:        "root",
+		Group:       "root",
+		DisplayName: "displayName",
+		UID:         0,
+		Shell:       "/sbin/nologin",
+		Groups:      []string{},
+	})
+
+	if err == nil {
+		t.Errorf(`Expected an error to be thrown when adding existing user`)
+	}
+}
+
+func TestRemoveUser(t *testing.T) {
+	ctx := context.Background()
+
+	runner, actualCmds := MockedRunner()
+
+	subject := BusyboxSyncer{
+		Run: runner,
+	}
+
+	err := subject.RemoveUser(ctx, "root")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedCmds := []string{"deluser --remove-home root"}
+
+	if !cmp.Equal(expectedCmds, **actualCmds) {
+		t.Errorf(`Expected the correct commands to be executed, but got %#v`, **actualCmds)
+	}
+}
+
+func TestRemoveUserIfNotExisting(t *testing.T) {
+	ctx := context.Background()
+
+	runner, _ := MockedRunner()
+
+	subject := BusyboxSyncer{
+		Run: runner,
+	}
+
+	err := subject.RemoveUser(ctx, "nonexisting")
+
+	if err == nil {
+		t.Errorf(`Expected to throw an error but was successful`)
+	}
+}

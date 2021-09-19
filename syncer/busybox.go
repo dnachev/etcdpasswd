@@ -97,7 +97,7 @@ func (s BusyboxSyncer) RemoveUser(ctx context.Context, name string) error {
 	}
 
 	// use background context to ignore cancellation.
-	return s.Run(context.Background(), "userdel", "-f", "-r", name)
+	return s.Run(context.Background(), "deluser", "--remove-home", name)
 }
 
 func busyBoxUserMod(runner CmdRunner, args ...string) error {
