@@ -14,6 +14,7 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20210512015243-d19fbe541bf9
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	sigs.k8s.io/yaml v1.2.0
+	github.com/google/go-cmp v0.5.6
 )
 
 require (
@@ -26,6 +27,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
